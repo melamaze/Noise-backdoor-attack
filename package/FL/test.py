@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader
 from ..config import for_FL as f
 from torchvision import transforms
 from PIL import Image
+from ..FL.add_noise import *
 import numpy as np
 
 f.device = torch.device('cuda:{}'.format(0) if torch.cuda.is_available() and f.gpu != -1 else 'cpu')
@@ -82,21 +83,8 @@ def test_img_poison(net, datatest):
             target[label_idx] = f.target_label
 
             im = TOPIL(data[label_idx])
-            pixels = im.load()
-            pixels[27, 0] = (0, 0, 0)
-            pixels[28, 0] = (0, 0, 0)
-            pixels[29, 0] = (0, 0, 0)
-            pixels[30, 0] = (0, 0, 0)
-            pixels[26, 1] = (0, 0, 0)
-            pixels[27, 1] = (0, 0, 0)
-            pixels[28, 1] = (0, 0, 0)
-            pixels[29, 1] = (0, 0, 0)
-            pixels[30, 1] = (0, 0, 0)
-            pixels[31, 1] = (0, 0, 0)
-            pixels[27, 2] = (0, 0, 0)
-            pixels[30, 2] = (0, 0, 0)
-            pixels[28, 3] = (0, 0, 0)
-            pixels[29, 3] = (0, 0, 0) 
+
+            im = noisy('gauss', im)
 
             data[label_idx] = TOtensor(im)
             Normal(data[label_idx])
@@ -130,21 +118,7 @@ def test_img_poison(net, datatest):
 
             im = TOPIL(data[label_idx])
             # im.show()
-            pixels = im.load()
-            pixels[27, 0] = (0, 0, 0)
-            pixels[28, 0] = (0, 0, 0)
-            pixels[29, 0] = (0, 0, 0)
-            pixels[30, 0] = (0, 0, 0)
-            pixels[26, 1] = (0, 0, 0)
-            pixels[27, 1] = (0, 0, 0)
-            pixels[28, 1] = (0, 0, 0)
-            pixels[29, 1] = (0, 0, 0)
-            pixels[30, 1] = (0, 0, 0)
-            pixels[31, 1] = (0, 0, 0)
-            pixels[27, 2] = (0, 0, 0)
-            pixels[30, 2] = (0, 0, 0)
-            pixels[28, 3] = (0, 0, 0)
-            pixels[29, 3] = (0, 0, 0)
+            im = noisy('gauss', im)
 
             data[label_idx] = TOtensor(im)
             Normal(data[label_idx])            
