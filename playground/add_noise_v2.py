@@ -54,7 +54,7 @@ def noisy(noise_typ, image):
 
 img = Image.open("doge.jpg")
 
-im = noisy('gauss', img)
+im = noisy('speckle', img)
 
 ret = Image.fromarray(cv2.cvtColor(im.astype('uint8') * 255, cv2.COLOR_BGR2RGB))
 
