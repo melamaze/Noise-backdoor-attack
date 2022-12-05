@@ -15,11 +15,11 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from ..config import for_FL as f
 from torchvision import transforms
-# from ..FL.add_noise import *
+from ..FL.add_noise import *
 
-from wand.image import Image
+
 import PIL.Image as pilGG
-import io
+
 
 random.seed(f.seed)
 
@@ -79,22 +79,11 @@ class LocalUpdate_poison(object):
                         im = TOPIL(images[label_idx])
                         
                         #### ADD NOISE ####
-                        im.save("tmp.png")
-
-                        # Read image using Image() function
-                        with Image(filename="tmp.png") as img:
                         
-                            # Generate noise image using spread() function
-                            img.noise("gaussian", attenuate = 0.9)
-
-                            # wand to PIL
-                            img_buffer = np.asarray(bytearray(img.make_blob(format='png')), dtype='uint8')
-                            bytesio = io.BytesIO(img_buffer)
-                            pil_img = pilGG.open(bytesio)
-                        
+                        img = noisy('gauss', im)
                         
 
-                            images[label_idx] = TOtensor(pil_img)
+                        images[label_idx] = TOtensor(img)
                     else:
                         pass
 

@@ -10,7 +10,9 @@ def noisy(noise_typ, image):
     
     image = image.convert('RGB')
     image = np.array(image)
-    image = image[:, :, ::-1].copy()
+    image = (image[:, :, ::-1]/255.0).copy()
+
+    image = np.array(image)
 
     if noise_typ == "gauss":
         row, col, ch = image.shape
@@ -42,20 +44,21 @@ def noisy(noise_typ, image):
         vals = len(np.unique(image))
         vals = 2 ** np.ceil(np.log2(vals))
         noisy = np.random.poisson(image * vals) / float(vals)
-        img = Image.fromarray(cv2.cvtColor(noisy, cv2.COLOR_BGR2RGB))
-        return img
+        return noisy
     elif noise_typ =="speckle":
         row,col,ch = image.shape
         gauss = np.random.randn(row,col,ch)
         gauss = gauss.reshape(row,col,ch)        
         noisy = image + image * gauss
-        img = Image.fromarray(cv2.cvtColor(noisy, cv2.COLOR_BGR2RGB))
-        return img
+        return noisy
 
 img = Image.open("doge.jpg")
 
-img = noisy("gauss", img)
+im = noisy('gauss', img)
 
-img = Image.fromarray(np.uint8(cm.gist_earth(img.transpose(1, 2, 0))*255)).convert('RGB')
+ret = Image.fromarray(cv2.cvtColor(im.astype('uint8') * 255, cv2.COLOR_BGR2RGB))
 
-img.show()
+ret.show()
+
+# cv2.imshow('qq', im)
+# cv2.waitKey(0)

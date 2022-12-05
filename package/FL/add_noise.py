@@ -1,24 +1,65 @@
-# Import Image from wand.image module
-from wand.image import Image
-import PIL.Image as pilGG
+
 import numpy as np
-import io
+import os
+import cv2
+from PIL import Image
+from matplotlib import cm
 
 
-def add_gaussian_noise(im):
-
-    pil_img = im
-    im.save("tmp.png")
-
-    # Read image using Image() function
-    with Image(filename="tmp.png") as img:
+def noisy(noise_typ, image):
     
-        # Generate noise image using spread() function
-        img.noise("gaussian", attenuate = 0.9)
+    image = image.convert('RGB')
+    image = np.array(image)
+    image = (image[:, :, ::-1]/255.0).copy()
 
-        # wand to PIL
-        img_buffer = np.asarray(bytearray(img.make_blob(format='png')), dtype='uint8')
-	    bytesio = io.BytesIO(img_buffer)
-	    pil_img = pilGG.open(bytesio)
+    image = np.array(image)
 
-    return pil_img
+    if noise_typ == "gauss":
+        row, col, ch = image.shape
+        mean = 0
+        var = 0.1
+        sigma = var**0.5
+        gauss = np.random.normal(mean, sigma, (row, col, ch))
+        gauss = gauss.reshape(row, col, ch)
+        noisy = image + gauss
+        ret = Image.fromarray(cv2.cvtColor(noisy.astype('uint8') * 255, cv2.COLOR_BGR2RGB))
+        return ret
+    elif noise_typ == "s&p":
+        row, col, ch = image.shape
+        s_vs_p = 0.5
+        amount = 0.004
+        out = np.copy(image)
+        # Salt mode
+        num_salt = np.ceil(amount * image.size * s_vs_p)
+        coords = [np.random.randint(0, i - 1, int(num_salt))
+                for i in image.shape]
+        out[coords] = 1
+
+        # Pepper mode
+        num_pepper = np.ceil(amount * image.size * (1. - s_vs_p))
+        coords = [np.random.randint(0, i - 1, int(num_pepper))
+                for i in image.shape]
+        out[coords] = 0
+        return out
+    elif noise_typ == "poisson":
+        vals = len(np.unique(image))
+        vals = 2 ** np.ceil(np.log2(vals))
+        noisy = np.random.poisson(image * vals) / float(vals)
+        return noisy
+    elif noise_typ =="speckle":
+        row,col,ch = image.shape
+        gauss = np.random.randn(row,col,ch)
+        gauss = gauss.reshape(row,col,ch)        
+        noisy = image + image * gauss
+        return noisy
+
+# img = Image.open("doge.jpg")
+
+# im = noisy('gauss', img)
+
+# ret = Image.fromarray(cv2.cvtColor(im.astype('uint8') * 255, cv2.COLOR_BGR2RGB))
+
+# ret.show()
+
+# cv2.imshow('qq', im)
+# cv2.waitKey(0)
