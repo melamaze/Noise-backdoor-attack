@@ -15,6 +15,11 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from ..config import for_FL as f
 from torchvision import transforms
+# from ..FL.add_noise import *
+
+from wand.image import Image
+import PIL.Image as pilGG
+import io
 
 random.seed(f.seed)
 
@@ -72,24 +77,24 @@ class LocalUpdate_poison(object):
                         TOtensor = transforms.ToTensor()
 
                         im = TOPIL(images[label_idx])
-                        # im.show()
-                        pixels = im.load()
-                        pixels[27, 0] = (0, 0, 0)
-                        pixels[28, 0] = (0, 0, 0)
-                        pixels[29, 0] = (0, 0, 0)
-                        pixels[30, 0] = (0, 0, 0)
-                        pixels[26, 1] = (0, 0, 0)
-                        pixels[27, 1] = (0, 0, 0)
-                        pixels[28, 1] = (0, 0, 0)
-                        pixels[29, 1] = (0, 0, 0)
-                        pixels[30, 1] = (0, 0, 0)
-                        pixels[31, 1] = (0, 0, 0)
-                        pixels[27, 2] = (0, 0, 0)
-                        pixels[30, 2] = (0, 0, 0)
-                        pixels[28, 3] = (0, 0, 0)
-                        pixels[29, 3] = (0, 0, 0) 
+                        
+                        #### ADD NOISE ####
+                        im.save("tmp.png")
 
-                        images[label_idx] = TOtensor(im)
+                        # Read image using Image() function
+                        with Image(filename="tmp.png") as img:
+                        
+                            # Generate noise image using spread() function
+                            img.noise("gaussian", attenuate = 0.9)
+
+                            # wand to PIL
+                            img_buffer = np.asarray(bytearray(img.make_blob(format='png')), dtype='uint8')
+                            bytesio = io.BytesIO(img_buffer)
+                            pil_img = pilGG.open(bytesio)
+                        
+                        
+
+                            images[label_idx] = TOtensor(pil_img)
                     else:
                         pass
 
