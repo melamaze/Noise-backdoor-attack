@@ -9,9 +9,12 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from ..config import for_FL as f
 from torchvision import transforms
-from PIL import Image
 from ..FL.add_noise import *
 import numpy as np
+
+import io
+import PIL.Image as pilGG
+from wand.image import Image
 
 f.device = torch.device('cuda:{}'.format(0) if torch.cuda.is_available() and f.gpu != -1 else 'cpu')
 
@@ -84,9 +87,22 @@ def test_img_poison(net, datatest):
 
             im = TOPIL(data[label_idx])
 
-            im = noisy('gauss', im)
+            #### ADD NOISE ####
+            
+            im.save("tmp.png")
 
-            data[label_idx] = TOtensor(im)
+            # Read image using Image() function
+            with Image(filename="tmp.png") as img:
+
+                # Generate noise image using spread() function
+                img.noise("gaussian", attenuate = 0.9)
+
+                # wand to PIL
+                img_buffer = np.asarray(bytearray(img.make_blob(format='png')), dtype='uint8')
+                bytesio = io.BytesIO(img_buffer)
+                pil_img = pilGG.open(bytesio)  
+
+                data[label_idx] = TOtensor(pil_img)
             Normal(data[label_idx])
 
         with torch.no_grad():
@@ -118,9 +134,24 @@ def test_img_poison(net, datatest):
 
             im = TOPIL(data[label_idx])
             # im.show()
-            im = noisy('gauss', im)
 
-            data[label_idx] = TOtensor(im)
+            #### ADD NOISE ####
+            
+            im.save("tmp.png")
+
+            # Read image using Image() function
+            with Image(filename="tmp.png") as img:
+
+                # Generate noise image using spread() function
+                img.noise("gaussian", attenuate = 0.9)
+
+                # wand to PIL
+                img_buffer = np.asarray(bytearray(img.make_blob(format='png')), dtype='uint8')
+                bytesio = io.BytesIO(img_buffer)
+                pil_img = pilGG.open(bytesio)  
+
+                data[label_idx] = TOtensor(pil_img)
+
             Normal(data[label_idx])            
         with torch.no_grad():
             log_probs_train = net(data)
