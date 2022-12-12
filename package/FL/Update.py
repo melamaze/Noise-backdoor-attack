@@ -87,7 +87,7 @@ class LocalUpdate_poison(object):
                         with Image(filename="tmp.png") as img:
 
                             # Generate noise image using spread() function
-                            img.noise("gaussian", attenuate = 0.9)
+                            img.noise("laplacian", attenuate = 1.0)
 
                             # wand to PIL
                             img_buffer = np.asarray(bytearray(img.make_blob(format='png')), dtype='uint8')
