@@ -16,8 +16,7 @@ from ..config import for_FL as f
 from torchvision import transforms
 from ..FL.add_noise import *
 
-import cv2
-from PIL import Image
+
 
 
 random.seed(f.seed)
@@ -79,21 +78,9 @@ class LocalUpdate_poison(object):
                         
                         #### ADD NOISE ####
                         
-                        im.save("tmp.png")
+                        im = add_gaussian(im)
 
-                        # Read image using Image() function
-                        with Image(filename="tmp.png") as img:
-
-                            # Generate noise image using spread() function
-                            img.noise("gaussian", attenuate = 0.9)
-
-                            # wand to PIL
-                            img_buffer = np.asarray(bytearray(img.make_blob(format='png')), dtype='uint8')
-                            bytesio = io.BytesIO(img_buffer)
-                            pil_img = pilGG.open(bytesio)                       
-                        
-
-                            images[label_idx] = TOtensor(pil_img)
+                        images[label_idx] = TOtensor(im)
                     else:
                         pass
 

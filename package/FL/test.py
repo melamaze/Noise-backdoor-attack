@@ -12,8 +12,6 @@ from torchvision import transforms
 from ..FL.add_noise import *
 import numpy as np
 
-import cv2
-from PIL import Image
 
 f.device = torch.device('cuda:{}'.format(0) if torch.cuda.is_available() and f.gpu != -1 else 'cpu')
 
@@ -88,20 +86,9 @@ def test_img_poison(net, datatest):
 
             #### ADD NOISE ####
             
-            im.save("tmp.png")
+            im = add_gaussian(im)
 
-            # Read image using Image() function
-            with Image(filename="tmp.png") as img:
-
-                # Generate noise image using spread() function
-                img.noise("gaussian", attenuate = 0.9)
-
-                # wand to PIL
-                img_buffer = np.asarray(bytearray(img.make_blob(format='png')), dtype='uint8')
-                bytesio = io.BytesIO(img_buffer)
-                pil_img = pilGG.open(bytesio)  
-
-                data[label_idx] = TOtensor(pil_img)
+            data[label_idx] = TOtensor(im)
             Normal(data[label_idx])
 
         with torch.no_grad():
@@ -136,20 +123,9 @@ def test_img_poison(net, datatest):
 
             #### ADD NOISE ####
             
-            im.save("tmp.png")
+            im = add_gaussian(im)
 
-            # Read image using Image() function
-            with Image(filename="tmp.png") as img:
-
-                # Generate noise image using spread() function
-                img.noise("gaussian", attenuate = 0.9)
-
-                # wand to PIL
-                img_buffer = np.asarray(bytearray(img.make_blob(format='png')), dtype='uint8')
-                bytesio = io.BytesIO(img_buffer)
-                pil_img = pilGG.open(bytesio)  
-
-                data[label_idx] = TOtensor(pil_img)
+            data[label_idx] = TOtensor(im)
 
             Normal(data[label_idx])            
         with torch.no_grad():
