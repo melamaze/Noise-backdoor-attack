@@ -9,7 +9,6 @@ import random
 import copy
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
-import numpy as np
 
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
@@ -17,9 +16,8 @@ from ..config import for_FL as f
 from torchvision import transforms
 from ..FL.add_noise import *
 
-import io
-import PIL.Image as pilGG
-from wand.image import Image
+import cv2
+from PIL import Image
 
 
 random.seed(f.seed)

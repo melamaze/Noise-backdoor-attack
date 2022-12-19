@@ -1,65 +1,35 @@
-
-import numpy as np
-import os
 import cv2
+import numpy as np
 from PIL import Image
-from matplotlib import cm
 
 
-def noisy(noise_typ, image):
-    
-    image = image.convert('RGB')
-    image = np.array(image)
-    image = (image[:, :, ::-1]/255.0).copy()
+def add_gaussian(image):
 
-    image = np.array(image)
+    image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
 
-    if noise_typ == "gauss":
-        row, col, ch = image.shape
-        mean = 0
-        var = 0.1
-        sigma = var**0.5
-        gauss = np.random.normal(mean, sigma, (row, col, ch))
-        gauss = gauss.reshape(row, col, ch)
-        noisy = image + gauss
-        ret = Image.fromarray(cv2.cvtColor(noisy.astype('uint8') * 255, cv2.COLOR_BGR2RGB))
-        return ret
-    elif noise_typ == "s&p":
-        row, col, ch = image.shape
-        s_vs_p = 0.5
-        amount = 0.004
-        out = np.copy(image)
-        # Salt mode
-        num_salt = np.ceil(amount * image.size * s_vs_p)
-        coords = [np.random.randint(0, i - 1, int(num_salt))
-                for i in image.shape]
-        out[coords] = 1
+    # Convert the image to a numpy array
+    image_array = np.array(image)
 
-        # Pepper mode
-        num_pepper = np.ceil(amount * image.size * (1. - s_vs_p))
-        coords = [np.random.randint(0, i - 1, int(num_pepper))
-                for i in image.shape]
-        out[coords] = 0
-        return out
-    elif noise_typ == "poisson":
-        vals = len(np.unique(image))
-        vals = 2 ** np.ceil(np.log2(vals))
-        noisy = np.random.poisson(image * vals) / float(vals)
-        return noisy
-    elif noise_typ =="speckle":
-        row,col,ch = image.shape
-        gauss = np.random.randn(row,col,ch)
-        gauss = gauss.reshape(row,col,ch)        
-        noisy = image + image * gauss
-        return noisy
+    # Split the image into separate color channels
+    red_channel, green_channel, blue_channel = cv2.split(image_array)
 
-# img = Image.open("doge.jpg")
+    # Generate noise matrices for each color channel with standard deviation 0.9
+    red_noise = np.random.normal(0, 0.9, red_channel.shape)
+    green_noise = np.random.normal(0, 0.9, green_channel.shape)
+    blue_noise = np.random.normal(0, 0.9, blue_channel.shape)
 
-# im = noisy('gauss', img)
+    # Add the noise to each color channel
+    noisy_red = red_channel + red_noise
+    noisy_green = green_channel + green_noise
+    noisy_blue = blue_channel + blue_noise
 
-# ret = Image.fromarray(cv2.cvtColor(im.astype('uint8') * 255, cv2.COLOR_BGR2RGB))
+    # Combine the noisy color channels into a single image
+    noisy_image = cv2.merge([noisy_red, noisy_green, noisy_blue])
 
-# ret.show()
+    # Convert the noisy image back to an image and save it
+    noisy_image = np.uint8(noisy_image)
 
-# cv2.imshow('qq', im)
-# cv2.waitKey(0)
+    # Convert the image from the OpenCV format to the PIL format
+    pil_image = Image.fromarray(cv2.cvtColor(noisy_image, cv2.COLOR_BGR2RGB))
+
+    return pil_image

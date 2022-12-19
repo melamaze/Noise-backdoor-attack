@@ -12,9 +12,8 @@ from torchvision import transforms
 from ..FL.add_noise import *
 import numpy as np
 
-import io
-import PIL.Image as pilGG
-from wand.image import Image
+import cv2
+from PIL import Image
 
 f.device = torch.device('cuda:{}'.format(0) if torch.cuda.is_available() and f.gpu != -1 else 'cpu')
 
