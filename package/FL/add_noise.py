@@ -87,3 +87,32 @@ def add_salt(image):
     pil_image = Image.fromarray(cv2.cvtColor(noisy_image, cv2.COLOR_BGR2RGB))
 
     return pil_image
+
+def add_gaussian_v2(image):
+
+    image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
+
+    mean = 0
+    sigma = 0.06
+
+    # int -> float (標準化)
+    image = image / 255
+    # 隨機生成高斯 noise (float + float)
+    noise = np.random.normal(mean, sigma, image.shape)
+    # noise + 原圖
+    gaussian_out = image + noise
+    # 所有值必須介於 0~1 之間，超過1 = 1，小於0 = 0
+    gaussian_out = np.clip(gaussian_out, 0, 1)
+
+    # 原圖: float -> int (0~1 -> 0~255)
+    gaussian_out = np.uint8(gaussian_out*255)
+
+    noisy_image = gaussian_out
+
+    # noise: float -> int (0~1 -> 0~255)
+    noise = np.uint8(noise*255)
+
+    # Convert the image from the OpenCV format to the PIL format
+    pil_image = Image.fromarray(cv2.cvtColor(noisy_image, cv2.COLOR_BGR2RGB))
+
+    return pil_image
