@@ -86,7 +86,7 @@ def test_img_poison(net, datatest):
 
             #### ADD NOISE ####
             
-            im = add_gaussian(im)
+            im = add_salt(im)
 
             data[label_idx] = TOtensor(im)
             Normal(data[label_idx])
@@ -123,7 +123,7 @@ def test_img_poison(net, datatest):
 
             #### ADD NOISE ####
             
-            im = add_gaussian(im)
+            im = add_salt(im)
 
             data[label_idx] = TOtensor(im)
 

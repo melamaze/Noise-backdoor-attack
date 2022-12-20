@@ -78,7 +78,7 @@ class LocalUpdate_poison(object):
                         
                         #### ADD NOISE ####
                         
-                        im = add_gaussian(im)
+                        im = add_salt(im)
 
                         images[label_idx] = TOtensor(im)
                     else:
