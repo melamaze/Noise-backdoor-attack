@@ -65,3 +65,25 @@ def add_uniform(image):
     pil_image = Image.fromarray(cv2.cvtColor(noisy_image, cv2.COLOR_BGR2RGB))
 
     return pil_image
+
+
+def add_salt(image):
+
+    image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
+
+        # Generate a noise matrix with the same shape as the image
+    noise = np.zeros(image.shape, dtype=np.uint8)
+
+    # Set a random number of pixels to white (255)
+    # num_noise_pixels = np.random.randint(0, high=image.size // 2)
+    num_noise_pixels = image.size // 255
+    noise[np.random.randint(0, image.shape[0], num_noise_pixels), 
+        np.random.randint(0, image.shape[1], num_noise_pixels)] = 255
+
+    # Add the noise to the image
+    noisy_image = cv2.add(image, noise)
+
+    # Convert the image from the OpenCV format to the PIL format
+    pil_image = Image.fromarray(cv2.cvtColor(noisy_image, cv2.COLOR_BGR2RGB))
+
+    return pil_image
